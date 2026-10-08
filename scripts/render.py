@@ -123,6 +123,9 @@ function render() {
       meshes[tag] = mesh;
       pending--;
       if (pending === 0) shoot();
+    }, undefined, function (err) {
+      document.title = 'LOAD_ERROR';
+      console.error('STL load failed:', url, err);
     });
   }
   function shoot() {
@@ -167,6 +170,14 @@ render();
 </script></body></html>"""
 
 
+def parts_json(parts):
+    """Parts for the page template: placeholder parts (file=None) resolve to
+    the PLACEHOLDERS stl in EXP, where build_placeholders() writes them."""
+    return json.dumps(
+        [[tag, f if f is not None else PLACEHOLDERS[tag], color]
+         for tag, f, color in parts])
+
+
 def render_scenes():
     os.makedirs(OUT, exist_ok=True)
     build_placeholders()
@@ -186,7 +197,7 @@ def render_scenes():
             ]
             html = (PAGE.replace("__ROOT__", ROOT)
                         .replace("__EXP__", EXP)
-                        .replace("__PARTS__", json.dumps(parts))
+                        .replace("__PARTS__", parts_json(parts))
                         .replace("__VIEWS__", json.dumps(views)))
             tmp = os.path.join(OUT, "_scene.html")
             with open(tmp, "w") as f:
@@ -197,6 +208,10 @@ def render_scenes():
                     page.evaluate("window.__next()")
                 page.wait_for_function(
                     f"window.__done_marker === 'SHOT_READY_{k}'", timeout=300000)
+                if page.title() == "LOAD_ERROR":
+                    raise RuntimeError(
+                        f"scene {scene_name}: STL failed to load "
+                        f"(browser console has the URL)")
                 page.screenshot(path=v["path"])
             outputs[scene_name] = [v["path"] for v in views]
             print("rendered", scene_name)
@@ -248,6 +263,9 @@ def render_closeups():
                 f.write(html)
             page.goto("file://" + tmp)
             page.wait_for_function("window.__done_marker", timeout=300000)
+            if page.title() == "LOAD_ERROR":
+                raise RuntimeError(
+                    f"closeup {name}: STL failed to load (browser console has the URL)")
             page.screenshot(path=os.path.join(OUT, name + ".png"))
             print("closeup", name)
             browser.close()

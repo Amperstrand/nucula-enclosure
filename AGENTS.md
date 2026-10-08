@@ -33,6 +33,14 @@ Read before changing ANY geometry.
      centre) at z ≈ board_top + 2.0 — that forced the whole battery-wire
      route; do not assume another exit direction without re-reading the
      JST drawing.
+   * Placeholder stand-ins (battery/glass) are built into
+     `output/exports/` — scene parts with `file=None` must resolve to
+     `PLACEHOLDERS[tag]` there. They once built `output/renders/<tag>.stl`
+     URLs that nothing wrote; the shipped zip only rendered because stale
+     copies sat in `renders/`. Fresh clones hung 5 min in
+     `wait_for_function` (the STL loader had no error callback). Now
+     `render.py` resolves placeholders in Python and raises on
+     `LOAD_ERROR`.
 7. **Variant audit:** changing rotation, wall, support height or any
    antenna-adjacent feature = re-run the full matrix for all four variants
    (the validator does this in one run).
