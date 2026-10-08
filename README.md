@@ -1,14 +1,17 @@
 # Nucula Enclosure — Rev 1 (no display / no keypad, optional pop-out screen)
 
+[![Validate](https://github.com/Amperstrand/nucula-enclosure/actions/workflows/validate.yml/badge.svg)](https://github.com/Amperstrand/nucula-enclosure/actions/workflows/validate.yml)
+
 Parametric, 3D-printable enclosure for the **Nucula board** (zeugmaster/nucula-board).
 The KiCad board file is the single geometric authority: every board dimension in
 this project is parsed from `nucula-v2.kicad_pcb` / its footprint libraries —
 nothing is hand-transcribed.
 
-Built with the methodology of
-`Amperstrand/lilygo-a7670-simhat-carrier` (AGENTS.md lessons): measure first,
-boolean-volume validation as the pass gate, calibration coupon before any real
-print, renders are never evidence.
+Built with the methodology of the
+[`Amperstrand/lilygo-a7670-simhat-carrier`](https://github.com/Amperstrand/lilygo-a7670-simhat-carrier/blob/cad/combined-carrier-v1/AGENTS.md)
+project (its AGENTS.md lessons): measure first, boolean-volume
+validation as the pass gate, calibration coupon before any real print,
+renders are never evidence.
 
 ## Status (see `analysis/` for the machine-readable truth)
 
@@ -47,7 +50,8 @@ python3 scripts/build.py                    # STEP + STL -> output/exports
 python3 scripts/render.py                   # PNG renders -> output/renders
 ```
 
-Requires: Python 3.11+, `cadquery` (2.6), `playwright` + chromium (renders only).
+Requires: Python 3.11+, `cadquery` ≥ 2.6 (2.8 verified — `requirements.txt`),
+`playwright` + chromium (renders only).
 
 **Portability:** the extracted geometry (`analysis/*.json`) is committed, so
 `validate.py` / `build.py` work out of the box. Re-extraction from KiCad
