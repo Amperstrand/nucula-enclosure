@@ -294,7 +294,7 @@
  },
  "V2_screen_popout:screen_glass_nfc_disclosure": {
   "status": "PASS",
-  "value": 1541.7,
+  "value": 1701.4,
   "intended_contact_mm3": "documented",
   "note": "glass partially overlays the coil rule area (dielectric); NFC range must be measured with the final assembly",
   "method": "boolean common volume"
@@ -310,7 +310,7 @@
   "status": "PASS",
   "value": {
    "bottom": 11495.7,
-   "lid": 7512.1
+   "lid": 7418.4
   },
   "intended_contact_mm3": "",
   "note": "watertight B-reps, positive volume",

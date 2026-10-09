@@ -1,27 +1,27 @@
 {
  "V0_coupon": [
-  "/root/src/lilygo-a7670-simhat-carrier/nucula/output/renders/V0_coupon_iso.png",
-  "/root/src/lilygo-a7670-simhat-carrier/nucula/output/renders/V0_coupon_usb.png",
-  "/root/src/lilygo-a7670-simhat-carrier/nucula/output/renders/V0_coupon_top.png"
+  "/root/src/nucula-enclosure/output/renders/V0_coupon_iso.png",
+  "/root/src/nucula-enclosure/output/renders/V0_coupon_usb.png",
+  "/root/src/nucula-enclosure/output/renders/V0_coupon_top.png"
  ],
  "V1_minimal_closed": [
-  "/root/src/lilygo-a7670-simhat-carrier/nucula/output/renders/V1_minimal_closed_iso.png",
-  "/root/src/lilygo-a7670-simhat-carrier/nucula/output/renders/V1_minimal_closed_usb.png",
-  "/root/src/lilygo-a7670-simhat-carrier/nucula/output/renders/V1_minimal_closed_top.png"
+  "/root/src/nucula-enclosure/output/renders/V1_minimal_closed_iso.png",
+  "/root/src/nucula-enclosure/output/renders/V1_minimal_closed_usb.png",
+  "/root/src/nucula-enclosure/output/renders/V1_minimal_closed_top.png"
  ],
  "V2_screen_popout_closed": [
-  "/root/src/lilygo-a7670-simhat-carrier/nucula/output/renders/V2_screen_popout_closed_iso.png",
-  "/root/src/lilygo-a7670-simhat-carrier/nucula/output/renders/V2_screen_popout_closed_usb.png",
-  "/root/src/lilygo-a7670-simhat-carrier/nucula/output/renders/V2_screen_popout_closed_top.png"
+  "/root/src/nucula-enclosure/output/renders/V2_screen_popout_closed_iso.png",
+  "/root/src/nucula-enclosure/output/renders/V2_screen_popout_closed_usb.png",
+  "/root/src/nucula-enclosure/output/renders/V2_screen_popout_closed_top.png"
  ],
  "V2_screen_popped": [
-  "/root/src/lilygo-a7670-simhat-carrier/nucula/output/renders/V2_screen_popped_iso.png",
-  "/root/src/lilygo-a7670-simhat-carrier/nucula/output/renders/V2_screen_popped_usb.png",
-  "/root/src/lilygo-a7670-simhat-carrier/nucula/output/renders/V2_screen_popped_top.png"
+  "/root/src/nucula-enclosure/output/renders/V2_screen_popped_iso.png",
+  "/root/src/nucula-enclosure/output/renders/V2_screen_popped_usb.png",
+  "/root/src/nucula-enclosure/output/renders/V2_screen_popped_top.png"
  ],
  "V3_full_keyboard": [
-  "/root/src/lilygo-a7670-simhat-carrier/nucula/output/renders/V3_full_keyboard_iso.png",
-  "/root/src/lilygo-a7670-simhat-carrier/nucula/output/renders/V3_full_keyboard_usb.png",
-  "/root/src/lilygo-a7670-simhat-carrier/nucula/output/renders/V3_full_keyboard_top.png"
+  "/root/src/nucula-enclosure/output/renders/V3_full_keyboard_iso.png",
+  "/root/src/nucula-enclosure/output/renders/V3_full_keyboard_usb.png",
+  "/root/src/nucula-enclosure/output/renders/V3_full_keyboard_top.png"
  ]
 }
