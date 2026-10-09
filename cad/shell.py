@@ -223,14 +223,18 @@ def bottom_shell(mode: str):
 # ---------------------------------------------------------------------------
 
 def screen_window_rect():
-    """Window opening + glass rect for the vertical (v-long) glass.
+    """Window opening + glass rect for the LANDSCAPE (u-long) glass.
 
-    Glass 29.4 (u) x 57.5 (v), flex edge at v-max, u-centred on the DS1
-    socket (u = 30).  Glass upper edge sits 0.4 past the routed cut edge
-    INSIDE the lid (above the remnant channel, z 9.5.. - far above remnants).
+    Glass 57.5 (u) x 29.4 (v); flex edge = the +v short edge, centred on
+    the DS1 socket (u = SCREEN_CENTER_U) so the ribbon folds straight into
+    DS1 (24-pad row runs along u). Held keyboard-down the screen reads
+    landscape in the band above the battery/keyboard-side cluster —
+    nucula-board device orientation (screen top, keypad underneath).
     """
-    gu0, gu1 = 30.0 - P.SCREEN_GLASS_L / 2.0, 30.0 + P.SCREEN_GLASS_L / 2.0
-    gv0, gv1 = Measured.MAIN_V_END + 0.4 - P.SCREEN_GLASS_W, Measured.MAIN_V_END + 0.4
+    gu0 = P.SCREEN_CENTER_U - P.SCREEN_GLASS_W / 2.0
+    gu1 = P.SCREEN_CENTER_U + P.SCREEN_GLASS_W / 2.0
+    gv1 = P.SCREEN_FLEX_EDGE_V
+    gv0 = gv1 - P.SCREEN_GLASS_L
     m = 0.10   # glass fit slack: the window admits the whole glass outline
     win = (gu0 - m, gv0 - m, gu1 + m, gv1 + m)
     return win, (gu0, gv0, gu1, gv1)
@@ -302,16 +306,28 @@ def lid(variant: str, mode: str, screen_window: bool, led_window: bool = True,
         wu0, wv0, wu1, wv1 = win
         deck_top = LID_Z0 + P.SCREEN_GLASS_T + P.SCREEN_RECESS_CLEAR \
             + P.SCREEN_POP_T + 0.60
-        ring_u0, ring_v0 = 13.8, 14.9
-        ring_u1, ring_v1 = 46.2, min(end - 0.8, 74.5)
+        bez = P.SCREEN_DECK_BEZEL
+        ring_u0, ring_u1 = max(INT_U0 + 1.2, wu0 - bez), min(INT_U1 - 1.2, wu1 + bez)
+        ring_v0, ring_v1 = max(INT_V0 + 1.2, wv0 - bez), min(end - 0.8, wv1 + bez)
         ring = _box(ring_u0, ring_v0, ring_u1, ring_v1, ROOF_TOP - 0.01, deck_top)
         ring = _cut_all(ring, [_box(wu0, wv0, wu1, wv1, ROOF_TOP - 1, deck_top + 1)])
         solid = solid.fuse(ring)
         solid = solid.cut(_box(wu0, wv0, wu1, wv1, LID_Z0 - 1, ROOF_TOP + 1))
+        # RESET/BOOT sit inside the deck band: re-cut their ports through
+        # ring + pop-out panel and extend the plunger rods to the deck face
+        for cx, cy in (Measured.SW1_C, Measured.SW2_C):
+            solid = solid.cut(_cyl(cx, cy, P.BUTTON_HOLE_D / 2.0,
+                                    LID_Z0 - 0.3, deck_top + 2))
+            solid = solid.fuse(_cyl(cx, cy, P.BUTTON_PLUNGER_D / 2.0,
+                                    ROOF_TOP + 1.1, deck_top + 1.2))
         if not screen_popped:
             panel = popout_panel(window=win, z0=deck_top - P.SCREEN_POP_T,
                                  t=P.SCREEN_POP_T)
             solid = solid.fuse(panel)
+            # the pop-out panel covers the button ports too: re-cut through it
+            for cx, cy in (Measured.SW1_C, Measured.SW2_C):
+                solid = solid.cut(_cyl(cx, cy, P.BUTTON_HOLE_D / 2.0,
+                                        LID_Z0 - 0.3, deck_top + 2))
         if led_window:
             # the LED sits inside the deck ring: re-cut the light hole
             # through ring + roof so it stays visible in the popout lid

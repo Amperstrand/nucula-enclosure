@@ -243,11 +243,24 @@ USB_OPENING_CLEAR = 0.60  # enclosure_design_decision: opening oversize
 USB_BODY_V = (55.5, 68.4) # derived_kicad: J1 pads v-span + 0.5
 
 # --- screen option (pop-out window) ------------------------------------------
-SCREEN_GLASS_W = 57.5     # conservative_assumption: 2.42" SSD1309 glass
-SCREEN_GLASS_L = 29.4     # conservative_assumption: short axis across v
+# LANDSCAPE glass: long axis along u, so the display reads correctly with
+# the device held keyboard-down (nucula-board device orientation: screen at
+# the top, keypad underneath). The ribbon exits the +v short edge, centred
+# on the DS1 socket (u = 30, pads along u; mounted panel pin 1 left /
+# pin 24 right -- nucula-board docs/oled24). The real NFP1309-02Y panel's
+# contact-edge side + exact outline still need physical confirmation
+# (docs/MEASUREMENTS_NEEDED.md).
+SCREEN_GLASS_W = 57.5     # conservative_assumption: 2.42" SSD1309 glass, long axis (u)
+SCREEN_GLASS_L = 29.4     # conservative_assumption: short axis (v)
 SCREEN_GLASS_T = 1.90     # conservative_assumption
 SCREEN_ACTIVE_W = 55.0    # manufacturer_doc: SSD1309 2.42" active area
 SCREEN_ACTIVE_L = 27.5    # manufacturer_doc
+SCREEN_FLEX_EDGE_V = 53.0  # enclosure_design_decision: glass +v edge at the DS1
+                           # courtyard edge (DS1 v 53.6..61.6); ribbon folds
+                           # straight into the socket. Puts the screen band
+                           # (v ~23.6..53.0) above the keyboard-side cluster.
+SCREEN_CENTER_U = 30.0     # derived_kicad: DS1 pad-row centre (u)
+SCREEN_DECK_BEZEL = 1.30   # enclosure_design_decision: bezel ring around the window
 SCREEN_WINDOW_MARGIN = 1.2  # enclosure_design_decision: bezel around active
 SCREEN_POP_T = 1.00       # enclosure_design_decision: pop-out panel thickness
 SCREEN_BRIDGE_W = 0.60    # enclosure_design_decision: perforation bridge width

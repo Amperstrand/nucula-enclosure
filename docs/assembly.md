@@ -44,7 +44,8 @@ Reference renders: `output/renders/detail_battery_pocket.png`,
 ## V2 display option
 
 7. Pop the window panel from the INSIDE (push the pick notch; the four
-   bridges snap). Trim nubs flush.
+   bridges snap). Trim nubs flush. The window is LANDSCAPE, 57.5 x 29.4,
+   flex edge on the socket-side short edge.
 8. Adhesive-mount the glass on the four standoff pads under the window,
    emitting face toward the opening.
 9. Glass flex → FFC jumper → route under the glass → fold down at

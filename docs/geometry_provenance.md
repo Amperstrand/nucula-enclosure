@@ -44,6 +44,7 @@ Every number used by the enclosure, and where it came from. Classes:
 | ESP32 antenna keepout | u 52.0..61.5 × v 44.0..68.34, all z | derived_kicad trace bbox + 2.9 mm metal margin |
 | USB plug envelope | mating face u −0.8, reach 26 mm, 13.0 × 6.5 plug | manufacturer_doc (GCT "6.5 Max", 12.x plug) + design decision |
 | Battery pocket | u 7..55.6 × v 45.8..71.9, z −5.3..1.2 | enclosure_design_decision |
+| Screen window (V2) | glass u 1.25..58.75 × v 23.6..53.0, LANDSCAPE, flex edge (+v short edge) at the DS1 courtyard; ribbon folds straight into DS1 (24-pad row along u, panel pin 1 left / pin 24 right) | enclosure_design_decision + nucula-board device orientation (screen top, keyboard underneath); NFP1309-02Y contact-edge side unverified |
 | Remnant envelope | 3 stub zones + 0.30 spread, v 73..75.2 | enclosure_design_decision |
 
 ## Battery wire route (enclosure_design_decision)
