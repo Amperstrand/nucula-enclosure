@@ -1,7 +1,11 @@
 # AGENTS.md — working rules for this enclosure project
 
 Distilled from this project's session + the LILYGO carrier methodology.
-Read before changing ANY geometry.
+The generalizable method (staged pipeline, prompt library P1–P12,
+cross-project lessons, A/B harness) lives in
+[`Amperstrand/enclosure-forge`](https://github.com/Amperstrand/enclosure-forge);
+this file keeps only Nucula-specific traps. Read both before changing
+ANY geometry.
 
 ## Process rules
 
@@ -41,6 +45,18 @@ Read before changing ANY geometry.
      `wait_for_function` (the STL loader had no error callback). Now
      `render.py` resolves placeholders in Python and raises on
      `LOAD_ERROR`.
+   * Device orientation comes from the BOARD repo, not from geometric
+     convenience: the Nucula is held keyboard-down (screen at top, keypad
+     underneath), so the OLED window is LANDSCAPE with the flex edge at
+     the DS1 courtyard. The first V2 window was portrait with the flex
+     edge at the routed cut edge — every boolean check passed; it was
+     still semantically wrong. Derive user-facing openings from the
+     hardware repo's docs/photos before cutting.
+   * Board-rev drift: `analysis/*.json` pin the board rev they were
+     extracted from. The hardware repo has since moved (J2 PH → JST-SH
+     side-entry opening left, six M2 holes, J6 wire pads). Re-run
+     `extract_kicad_geometry.py` and re-derive the wire route before the
+     next physical print.
 7. **Variant audit:** changing rotation, wall, support height or any
    antenna-adjacent feature = re-run the full matrix for all four variants
    (the validator does this in one run).
