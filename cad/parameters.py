@@ -255,10 +255,14 @@ SCREEN_GLASS_L = 29.4     # conservative_assumption: short axis (v)
 SCREEN_GLASS_T = 1.90     # conservative_assumption
 SCREEN_ACTIVE_W = 55.0    # manufacturer_doc: SSD1309 2.42" active area
 SCREEN_ACTIVE_L = 27.5    # manufacturer_doc
-SCREEN_FLEX_EDGE_V = 53.0  # enclosure_design_decision: glass +v edge at the DS1
-                           # courtyard edge (DS1 v 53.6..61.6); ribbon folds
-                           # straight into the socket. Puts the screen band
-                           # (v ~23.6..53.0) above the keyboard-side cluster.
+SCREEN_FLEX_EDGE_V = 46.0  # enclosure_design_decision: glass +v edge; ribbon
+                           # folds ~12.9 mm to DS1 (v 58.85) -- matches the
+                           # 12 mm NFP1309-02Y flex assumption + planned 25 mm
+                           # FFC jumper. Screen band v ~16.6..46.0 sits fully
+                           # ABOVE the battery/keyboard-side cluster (J2,
+                           # ESP32 no longer under the glass); "a little
+                           # higher" per user 2026-10-09 (payment-terminal
+                           # layout: screen top, keypad below).
 SCREEN_CENTER_U = 30.0     # derived_kicad: DS1 pad-row centre (u)
 SCREEN_DECK_BEZEL = 1.30   # enclosure_design_decision: bezel ring around the window
 SCREEN_WINDOW_MARGIN = 1.2  # enclosure_design_decision: bezel around active

@@ -294,7 +294,7 @@
  },
  "V2_screen_popout:screen_glass_nfc_disclosure": {
   "status": "PASS",
-  "value": 1701.4,
+  "value": 2299.9,
   "intended_contact_mm3": "documented",
   "note": "glass partially overlays the coil rule area (dielectric); NFC range must be measured with the final assembly",
   "method": "boolean common volume"

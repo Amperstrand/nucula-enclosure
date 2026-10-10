@@ -235,7 +235,7 @@ def render_closeups():
                                    "center": [28.0, 60.0, -1.0], "span": 52}),
         "detail_popout_window": (None, "V2_lid_screen_popped.stl", 0x3c4a57,
                                  {"label": "screen window popped (landscape, flex edge at bottom)",
-                                  "center": [30.0, 38.3, 10.0], "span": 62}),
+                                  "center": [30.0, 31.3, 10.0], "span": 62}),
         "detail_button_ports": (None, "V1_lid_closed.stl", 0x3c4a57,
                                 {"label": "RESET / BOOT plunger ports + charge-LED hole",
                                  "center": [53.0, 31.5, 9.0], "span": 26}),
