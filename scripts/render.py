@@ -49,10 +49,18 @@ SCENES = {
         ("battery", None, 0x9b3a3a),
         ("lid", "V3_lid_keyboard_blister.stl", 0x3c4a57),
     ],
+    "V4_terminal": [
+        ("bottom", "V4_bottom_shell_terminal.stl", 0x2f3a45),
+        ("board", "reference_full_board.stl", 0x1a6e8a),
+        ("battery", None, 0x9b3a3a),
+        ("lid", "V4_lid_terminal.stl", 0x3c4a57),
+        ("keypad", "keypad_standin.stl", 0x23282d),
+    ],
 }
 
 # extra parametric stand-ins (battery + glass) built by cadquery here
-PLACEHOLDERS = {"battery": "battery.stl", "glass": "glass.stl"}
+PLACEHOLDERS = {"battery": "battery.stl", "glass": "glass.stl",
+                "keypad": "keypad_standin.stl"}
 
 
 def build_placeholders():
@@ -75,6 +83,12 @@ def build_placeholders():
         gu1 - gu0, gv1 - gv0, P.SCREEN_GLASS_T,
         cq.Vector(gu0, gv0, S.LID_Z0)))
     cq.exporters.export(g, os.path.join(EXP, "glass.stl"), exportType="STL")
+
+    kp = S.keypad_standin(S.BT + P.KB_HEADER_H + 0.5
+                          + P.KEYPAD_PODIUM_ROOF + 0.05)
+    cq.exporters.export(cq.Workplane(obj=kp),
+                        os.path.join(EXP, "keypad_standin.stl"),
+                        exportType="STL")
 
 
 def build_popped_lid():
@@ -113,7 +127,9 @@ function render() {
   let pending = Object.keys(PARTS).length;
   const meshes = {};
   for (const [tag, file, color] of PARTS) {
-    const url = file ? EXP + '/' + file : ROOT + '/output/renders/' + tag + '.stl';
+    const url = file.startsWith("ref:")
+      ? ROOT + "/" + file.slice(4)
+      : EXP + '/' + file;
     const loader = new THREE.STLLoader();
     loader.load(url, function (geo) {
       geo.computeBoundingBox();
@@ -239,6 +255,9 @@ def render_closeups():
         "detail_button_ports": (None, "V1_lid_closed.stl", 0x3c4a57,
                                 {"label": "RESET / BOOT plunger ports + charge-LED hole",
                                  "center": [53.0, 31.5, 9.0], "span": 26}),
+        "detail_keypad_bay": (None, "V4_lid_terminal.stl", 0x3c4a57,
+                              {"label": "V4 keypad bay (1824-class 3x4, J3 service opening)",
+                               "center": [30.0, 84.0, 12.0], "span": 78}),
         "detail_coupon": ("V0_calibration_coupon.stl", None, 0x7ec8e3,
                           {"label": "coupon: pilot ladder / thickness stairs / lip bay / slits / bridges",
                            "center": [45.0, 22.0, 2.0], "span": 85}),
@@ -282,6 +301,7 @@ def contact_sheet():
         ("V2 - screen-ready: pop-out OLED window (printed closed / popped)", "V2_screen_popout_closed"),
         ("V2b - same print, window popped out", "V2_screen_popped"),
         ("V3 - full length: keyboard breakaway NOT removed", "V3_full_keyboard"),
+        ("V4 - payment terminal: screen on top, keypad bay below", "V4_terminal"),
     ]
     W = 1600
     rows = []

@@ -18,7 +18,7 @@ ANY geometry.
    them; no magic numbers in `cad/shell.py`.
 3. **Validation is the design review.** After ANY parameter change run
    `python3 scripts/validate.py`. Pass gate = zero unexpected common volume
-   (INTENDED contacts are subtracted and named). 57 checks must stay green.
+   (INTENDED contacts are subtracted and named). 80 checks must stay green.
 4. **Renders are never evidence.** `scripts/render.py` close-ups exist to
    make features resolvable for humans; boolean probes decide.
 5. **Coupon shares production builders.** `shell.coupon()` calls the same

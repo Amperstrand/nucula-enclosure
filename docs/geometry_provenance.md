@@ -44,7 +44,7 @@ Every number used by the enclosure, and where it came from. Classes:
 | ESP32 antenna keepout | u 52.0..61.5 × v 44.0..68.34, all z | derived_kicad trace bbox + 2.9 mm metal margin |
 | USB plug envelope | mating face u −0.8, reach 26 mm, 13.0 × 6.5 plug | manufacturer_doc (GCT "6.5 Max", 12.x plug) + design decision |
 | Battery pocket | u 7..55.6 × v 45.8..71.9, z −5.3..1.2 | enclosure_design_decision |
-| Screen window (V2) | glass u 1.25..58.75 × v 23.6..53.0, LANDSCAPE, flex edge (+v short edge) at the DS1 courtyard; ribbon folds straight into DS1 (24-pad row along u, panel pin 1 left / pin 24 right) | enclosure_design_decision + nucula-board device orientation (screen top, keyboard underneath); NFP1309-02Y contact-edge side unverified |
+| Screen window (V2) | glass u 1.25..58.75 × v 16.6..46.0, LANDSCAPE, flex edge (+v short edge) folds ~12.9 mm to DS1 (24-pad row along u, panel pin 1 left / pin 24 right) | enclosure_design_decision + nucula-board device orientation (screen top, keyboard underneath); raised 2026-10-09 for the payment-terminal layout; NFP1309-02Y contact-edge side unverified |
 | Remnant envelope | 3 stub zones + 0.30 spread, v 73..75.2 | enclosure_design_decision |
 
 ## Battery wire route (enclosure_design_decision)
@@ -61,3 +61,15 @@ through the 2.0 mm channel at the factory edge v = 110.
 All unlisted SMD bodies use 1.00 mm (conservative_assumption: generic
 passives ≤ 1.0). Change `COMP_HEIGHTS` in `cad/parameters.py` if your
 build uses taller parts; the validator re-checks everything.
+
+## V4 keypad (payment terminal)
+
+| Quantity | Value | Source |
+|---|---|---|
+| Keypad class | Adafruit 1824/3844-class 3x4 matrix, 7 lines | manufacturer_doc + nucula-board docs/keyboard-interface.md |
+| Outline | 70.0 x 50.0 x 7.0 mm, 23 g | manufacturer_doc: Adafruit 1824 datasheet |
+| Key grid (stand-in only) | 3 cols x 4 rows, 10.8x9.2 caps +1.5 domes | conservative_assumption (render stand-in; official model download is login-gated - GrabCAD adafruit-3x4-phone-style-matrix-keypad-1) |
+| Bay | u -5.6..65.6 x v 58.8..110.0, 3.0 deep | enclosure_design_decision (outline + 0.6 slack) |
+| Zone flare | +4.85/side from v 73.6 (outer 75.45) | enclosure_design_decision |
+| Podium interior | 12.4 (J3 8.7 + 0.5 + pigtail headroom) | enclosure_design_decision |
+| J3 service opening | u 18..42 x v 103.5..110 in bay floor | enclosure_design_decision |

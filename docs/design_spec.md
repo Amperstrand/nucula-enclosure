@@ -55,6 +55,44 @@ Evidence: `analysis/interference_report.json` (**57/57 PASS**, this run)
 10. **Every dimension is parametric and the model regenerates
     deterministically.** Audit: `build:deterministic_rebuild` PASS.
 
+
+## V4 payment terminal (2026-10-10)
+
+Layout: **screen on top, keypad below** (user directive; nucula-board
+device orientation). The keypad is the board's intended peripheral: an
+Adafruit-1824-class 3x4 matrix keypad (official outline 70x50x7, 7 scan
+lines onto J3 pins 2-8; nucula-board keyboard-interface.md cites the
+Adafruit 3845 arrangement).
+
+Why a flared keypad zone instead of a flush cutout (elimination, all
+boolean-probe driven):
+
+* A flush through-cutout needs the keypad body (7 mm) INSIDE the cavity.
+  The bottom zone has no 51 mm clean vertical span: J1 (USB, v 56..67,
+  top z 6.7) and J3 + pigtail (v 104..111, top z ~12.1) bound it. A
+*shallow* recess deeper than the 1.2 mm blister roof cuts into the J3
+void. So the keypad sits OUTSIDE, in a bay: podium interior 12.4 mm
+(clears J3 8.7 + pigtail), bay floor slab 1.4 mm, bay recess 3.0 mm.
+* The 70 mm keypad exceeds the 64.75 mm slim case: the keypad zone
+  flares +4.85 mm per side (outer 75.45) from the routed cut edge band
+  (v 73.6) — vertical seam faces only, prints with the shell.
+* Bay: u -5.6..65.6 (70 + 2x0.6 slack), v 58.8..110.0; rim 1.6; keys
+  stand 4.0 mm proud of the rim (terminal look). Service opening
+  u 18..42 x v 103.5..110 through the bay floor gives J3 tool access +
+  the pigtail drop-through (no hatch needed: remove keypad to service).
+
+Keypad geometry source: official Adafruit 1824 outline (datasheet text +
+dimension drawing in the repo). A downloadable STEP of this exact part
+exists (GrabCAD "adafruit-3x4-phone-style-matrix-keypad-1") but every
+download path is login-gated; the render/validation stand-in uses ONLY
+the official outline + a conservative 3x4 key grid, disclosed in
+geometry_provenance.md. Replace with the real model when a login session
+is available; the bay dimensions do not depend on it.
+
+New checks (80 total): V4 runs the full matrix + `keypad_bay_admits_
+stand-in` (official-outline solid seats without wall contact) +
+`j3_service_opening_clear`.
+
 ## Known gaps (deliberate, documented)
 
 - No physical print feedback yet — this release exists to close it (coupon first).

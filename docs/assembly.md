@@ -66,3 +66,14 @@ Reference renders: `output/renders/detail_battery_pocket.png`,
 * Buttons click through the plungers (0.3 mm gap to the B3U actuators).
 * NFC read with a card on the lid over the coil half of the case.
 * Battery unplugs through the service bay with the lid on.
+
+## V4 payment terminal (keypad)
+
+10. Seat the 3x4 matrix keypad (Adafruit-1824-class, 70x50x7) into the
+    bay from the outside; its back rests on the bay floor, keys stand
+    ~4 mm proud. Fix with the keypad's adhesive back or VHB dots.
+11. Run 7 female-female jumpers from the keypad's top-edge pins through
+    the bay-floor service opening onto J3 pins 2-8 (pin 1/9 NC). ~60 mm
+    leads; all wiring stays inside the podium void.
+12. J3 service = peel/lift the keypad; the opening (u 18..42) clears the
+    full header for fitting and probing.

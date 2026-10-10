@@ -5,6 +5,9 @@
  "V2_lid_screen_popout": "variant V2 lid (window printed closed)",
  "V3_bottom_shell_full": "variant V3 bottom (keyboard attached)",
  "V3_lid_keyboard_blister": "variant V3 lid (J3 service blister)",
+ "V4_bottom_shell_terminal": "variant V4 bottom (flared keypad zone)",
+ "V4_lid_terminal": "variant V4 lid (screen window + keypad bay)",
+ "keypad_standin.stl": "render/validation stand-in (official 1824 outline) - not a part",
  "reference_main_board": "render reference only - do not print",
  "reference_full_board": "render reference only - do not print"
 }

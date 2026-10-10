@@ -23,5 +23,10 @@
   "/root/src/nucula-enclosure/output/renders/V3_full_keyboard_iso.png",
   "/root/src/nucula-enclosure/output/renders/V3_full_keyboard_usb.png",
   "/root/src/nucula-enclosure/output/renders/V3_full_keyboard_top.png"
+ ],
+ "V4_terminal": [
+  "/root/src/nucula-enclosure/output/renders/V4_terminal_iso.png",
+  "/root/src/nucula-enclosure/output/renders/V4_terminal_usb.png",
+  "/root/src/nucula-enclosure/output/renders/V4_terminal_top.png"
  ]
 }

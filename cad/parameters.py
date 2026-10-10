@@ -242,6 +242,35 @@ USB_PLUG_REACH = 26.0     # enclosure_design_decision: cable bend service void
 USB_OPENING_CLEAR = 0.60  # enclosure_design_decision: opening oversize
 USB_BODY_V = (55.5, 68.4) # derived_kicad: J1 pads v-span + 0.5
 
+# --- V4 payment-terminal option (keypad bay) ----------------------------------
+# The board's intended keypad is the Adafruit 3845/1824-class 3x4 matrix
+# (nucula-board keyboard-interface.md cites Adafruit 3845; J3 pins 2-8 =
+# PCF8574 P0-P6, 7 scan lines). Official outline: 70 x 50 x 7 mm, 23 g,
+# 7-pin 2.54 header row on the top edge (Adafruit 1824 datasheet).
+# A downloadable 3D model exists (GrabCAD "adafruit-3x4-phone-style-
+# matrix-keypad-1") but every download path is login-gated; the stand-in
+# built in scripts/render.py uses ONLY the official outline + a
+# conservative key grid, and is disclosed as such everywhere it appears.
+KEYPAD_W = 70.0            # manufacturer_doc: Adafruit 1824 datasheet
+KEYPAD_L = 50.0            # manufacturer_doc: length along v (4 key rows)
+KEYPAD_T = 7.0             # manufacturer_doc
+KEYPAD_BAY_CLEAR = 0.6     # enclosure_design_decision: bay slack per side
+KEYPAD_BAY_DEPTH = 3.0     # enclosure_design_decision: locating recess depth
+KEYPAD_BAY_V0 = 58.8       # enclosure_design_decision: bay top edge; leaves
+                           # the 47.4..57.6 band solid between screen deck
+                           # and podium (screen / bezel / keypad rhythm)
+KEYPAD_PODIUM_V0 = 57.6    # enclosure_design_decision: podium wall start
+KEYPAD_PODIUM_ROOF = 1.4   # enclosure_design_decision: bay floor slab
+KEYPAD_SERVICE_U = (18.0, 42.0)   # J3 fitting + pigtail drop-through in the
+KEYPAD_SERVICE_V = (103.5, 110.0)  # bay floor (J3 zone u 18.1..41.9)
+V4_FLARE_PER_SIDE = 4.85   # enclosure_design_decision: keypad-zone flare;
+                           # outer 64.75 -> 74.45 (bay 71.2 + rims 1.6x2)
+V4_FLARE_V0 = 73.6         # enclosure_design_decision: flare starts at the
+                           # routed cut edge band; screen zone keeps the
+                           # slim 64.75 profile (payment-terminal shoulder)
+KEYPAD_SLOT_V = (103.5, 106.5)  # pigtail drop-through into the J3 void
+KEYPAD_SLOT_U = (25.0, 35.0)
+
 # --- screen option (pop-out window) ------------------------------------------
 # LANDSCAPE glass: long axis along u, so the display reads correctly with
 # the device held keyboard-down (nucula-board device orientation: screen at
@@ -331,6 +360,18 @@ VARIANTS = {
         "notes": "Houses the 60x110 board with the keyboard section "
                  "attached. J3 keypad-header service blister with pop-out "
                  "hatch for a future keypad.",
+    },
+    "terminal": {
+        "label": "V4 payment terminal - screen on top, keypad below",
+        "board_mode": "full",
+        "parts": ("bottom", "lid"),
+        "screen_window": True,
+        "lid_variant": "terminal",
+        "bottom_flare": True,
+        "notes": "Full-length board, slim screen zone + flared keypad zone "
+                 "(payment-terminal shoulder). Keypad bay seats the "
+                 "Adafruit-1824-class 3x4 matrix keypad (70x50x7) over the "
+                 "breakaway section; J3 service opening in the bay floor.",
     },
 }
 

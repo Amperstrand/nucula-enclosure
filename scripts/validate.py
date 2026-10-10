@@ -65,13 +65,16 @@ def fuse(solids):
     return S._fuse_all(solids)
 
 
-def run_variant(mode: str, screen_window: bool, variant_name: str):
+def run_variant(mode: str, screen_window: bool, variant_name: str,
+                lid_variant: str | None = None, flare: bool = False):
     print(f"== {variant_name} (mode={mode}, screen={screen_window}) ==")
     board = R.board_solid(mode)
     comps = R.component_solids(mode)
-    bottom = S.bottom_shell(mode)
-    lid = S.lid("kb_blister" if mode == "full" else ("popout" if screen_window else "closed"),
-                mode, screen_window, led_window=True)
+    bottom = S.bottom_shell(mode, flare=flare)
+    if lid_variant is None:
+        lid_variant = "kb_blister" if mode == "full" else \
+            ("popout" if screen_window else "closed")
+    lid = S.lid(lid_variant, mode, screen_window, led_window=True)
     shell_both = bottom.fuse(lid)
 
     # --- intended contact features -------------------------------------
@@ -244,6 +247,31 @@ def run_variant(mode: str, screen_window: bool, variant_name: str):
             check(f"{variant_name}:j3_header_fits_blister", v < 0.01, round(v, 4),
                   note="an 8.7 mm keypad header clears the service blister")
 
+    # --- 15b keypad bay (V4 terminal) ---------------------------------------
+    if lid_variant == "terminal":
+        bay_floor_z = (S.BT + P.KB_HEADER_H + 0.5
+                       + P.KEYPAD_PODIUM_ROOF)
+        kp = S.keypad_standin(bay_floor_z + 0.05)
+        vk = vol(inter(kp, shell_both))
+        bb = kp.BoundingBox()
+        bay_u0 = P.SCREEN_CENTER_U - P.KEYPAD_W / 2.0 - P.KEYPAD_BAY_CLEAR
+        bay_v1 = S.end_v(mode) - 2.0
+        fits = (bb.xmin >= bay_u0 - 0.01 and
+                bb.xmax <= bay_u0 + P.KEYPAD_W + 2 * P.KEYPAD_BAY_CLEAR + 0.01 and
+                bb.ymax <= bay_v1 + 0.01)
+        check(f"{variant_name}:keypad_bay_admits_stand-in", vk < 0.5 and fits,
+              {"shell_overlap": round(vk, 3), "bbox_fit": fits},
+              intended="bay seating plane only",
+              note="70x50x7 keypad stand-in (official 1824 outline) seats in "
+                   "the bay without touching walls or rim")
+        svc = S._box(P.KEYPAD_SERVICE_U[0], P.KEYPAD_SERVICE_V[0],
+                     P.KEYPAD_SERVICE_U[1], P.KEYPAD_SERVICE_V[1],
+                     bay_floor_z - 1, bay_floor_z + 1)
+        j3_open = vol(inter(svc, lid))
+        check(f"{variant_name}:j3_service_opening_clear", j3_open < 0.01,
+              round(j3_open, 3),
+              note="bay floor opening gives tool access to J3 + pigtail")
+
     # --- 16 watertight + non-empty ------------------------------------------
     ok = bottom.isValid() and lid.isValid() and bottom.Volume() > 0 and lid.Volume() > 0
     check(f"{variant_name}:solids_valid", ok,
@@ -360,6 +388,8 @@ def main():
     results["V1_minimal"] = run_variant("main", False, "V1_minimal")
     results["V2_screen_popout"] = run_variant("main", True, "V2_screen_popout")
     results["V3_full_keyboard"] = run_variant("full", False, "V3_full_keyboard")
+    results["V4_terminal"] = run_variant("full", True, "V4_terminal",
+                                         lid_variant="terminal", flare=True)
     results["V0_coupon"] = coupon_checks()
     write_testing_status()
 

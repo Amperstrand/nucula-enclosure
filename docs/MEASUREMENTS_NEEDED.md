@@ -18,6 +18,9 @@ answer back into `cad/parameters.py` and re-run `scripts/validate.py`.
 | 11 | USB plug boots in the wild | 13.0 × 6.5 envelope + 0.6 clearance | plug 3-5 common cables fully | opening size |
 | 12 | Charge-LED visibility through the V2 deck hole | dim (3+ mm deep hole) | eyeball with the board powered | LED window shape / light pipe |
 | 13 | J3 blister usability with a real keypad cable | hatch 26 × 5.5 mm | dry-fit a 3×4 matrix keypad pigtail (Adafruit PID 3845-class, 7-line + 2 NC) | hatch size |
+| 14 | Real keypad outline vs 70×50×7 assumption | Adafruit 1824 datasheet (stand-in basis) | caliper the purchased keypad before printing V4; bay = outline + 0.6 | V4 bay fit |
+| 15 | Keypad key pitch / cap size (stand-in cosmetic only) | 10.8×9.2 caps, conservative | measure once a real keypad is at hand; affects renders, not the bay | stand-in fidelity |
+| 16 | Fetch the real 1824 STEP | login-gated (GrabCAD adafruit-3x4-phone-style-matrix-keypad-1) | download with an account; replace cad stand-in | render realism |
 
 ## Board-side observations (do NOT fix here)
 

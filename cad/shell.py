@@ -122,7 +122,25 @@ SNAP_TABS = [("left", 15.0), ("left", 30.0), ("right", 15.0), ("right", 38.0)]
 # bottom shell
 # ---------------------------------------------------------------------------
 
-def bottom_shell(mode: str):
+def v4_flare_solids(mode: str, z_top_bottom: float):
+    """Width flare for the keypad zone (payment-terminal shoulder).
+
+    Two flat wall bands + floor strips fuse onto the slim shell for
+    v >= V4_FLARE_V0, widening the outer profile by V4_FLARE_PER_SIDE so
+    the 70 mm keypad bay (plus rims) fits over the 60 mm board. Vertical
+    seam faces only - prints with the shell, no overhangs.
+    """
+    ox0, oy0, ox1, oy1 = outer_rect(mode)
+    f = P.V4_FLARE_PER_SIDE
+    v0, v1 = P.V4_FLARE_V0, oy1
+    out = []
+    for ua, ub in ((ox0 - f, ox0), (ox1, ox1 + f)):
+        out.append(_box(ua, v0, ub, v1, -P.FLOOR_T, z_top_bottom))
+        out.append(_box(ua, v0, ub, v1, -P.FLOOR_T, 0.0))
+    return out
+
+
+def bottom_shell(mode: str, flare: bool = False):
     end = end_v(mode)
     ox0, oy0, ox1, oy1 = outer_rect(mode)
     cx, cy = (ox0 + ox1) / 2.0, (oy0 + oy1) / 2.0
@@ -215,6 +233,8 @@ def bottom_shell(mode: str):
     cutters.append(_box(60.20, 47.00, INT_U1 + P.WALL_T + 0.05, 65.30,
                         P.PCB_SUPPORT_H, 7.00))
     solid = _cut_all(solid, cutters)
+    if flare:
+        solid = solid.fuse(_fuse_all(v4_flare_solids(mode, LID_Z0)))
     return solid
 
 
@@ -238,6 +258,32 @@ def screen_window_rect():
     m = 0.10   # glass fit slack: the window admits the whole glass outline
     win = (gu0 - m, gv0 - m, gu1 + m, gv1 + m)
     return win, (gu0, gv0, gu1, gv1)
+
+
+def keypad_standin(seat_z: float):
+    """Adafruit-1824-class 3x4 keypad STAND-IN for renders + bay checks.
+
+    Outline is manufacturer_doc (70 x 50 x 7, 7-pin top edge); the key
+    grid pitch/caps are conservative_assumption (downloadable 3D models
+    of this exact part are login-gated everywhere - see
+    docs/geometry_provenance.md). Render illustration only: never
+    evidence (AGENTS.md).
+    """
+    u0 = P.SCREEN_CENTER_U - P.KEYPAD_W / 2.0
+    v0 = P.KEYPAD_BAY_V0 + P.KEYPAD_BAY_CLEAR
+    body = _box(u0, v0, u0 + P.KEYPAD_W, v0 + P.KEYPAD_L,
+                seat_z, seat_z + P.KEYPAD_T)
+    keys = []
+    pitch_u = P.KEYPAD_W / 3.0
+    pitch_v = (P.KEYPAD_L - 6.0) / 4.0
+    for r in range(4):
+        for c in range(3):
+            kx = u0 + pitch_u * (c + 0.5)
+            ky = v0 + 3.0 + pitch_v * (r + 0.5)
+            keys.append(_box(kx - 5.4, ky - 4.6, kx + 5.4, ky + 4.6,
+                             seat_z + P.KEYPAD_T - 0.05,
+                             seat_z + P.KEYPAD_T + 1.5))
+    return _fuse_all([body] + keys)
 
 
 def lid(variant: str, mode: str, screen_window: bool, led_window: bool = True,
@@ -333,6 +379,39 @@ def lid(variant: str, mode: str, screen_window: bool, led_window: bool = True,
             # through ring + roof so it stays visible in the popout lid
             solid = solid.cut(_cyl(Measured.D3_C[0], Measured.D3_C[1],
                                    P.LED_HOLE_D / 2.0, LID_Z0 - 0.4, deck_top + 2))
+
+    if variant == "terminal" and mode == "full":
+        # payment-terminal keypad podium (see docs/design_spec.md):
+        # interior clears J3 + pigtail; bay recess seats the 70x50 keypad;
+        # J3 service opening doubles as the pigtail drop-through.
+        ox0f, oy0f, ox1f, oy1f = outer_rect(mode)
+        solid = solid.fuse(_box(ox0f - P.V4_FLARE_PER_SIDE, P.V4_FLARE_V0,
+                                ox1f + P.V4_FLARE_PER_SIDE, oy1f,
+                                LID_Z0, ROOF_TOP))
+        bz4 = BT + P.KB_HEADER_H + 0.5
+        z_top = bz4 + P.KEYPAD_BAY_DEPTH + P.KEYPAD_PODIUM_ROOF
+        bay_u0 = P.SCREEN_CENTER_U - P.KEYPAD_W / 2.0 - P.KEYPAD_BAY_CLEAR
+        bay_u1 = P.SCREEN_CENTER_U + P.KEYPAD_W / 2.0 + P.KEYPAD_BAY_CLEAR
+        bay_v0 = P.KEYPAD_BAY_V0
+        bay_v1 = end - 2.0
+        pu0, pu1 = bay_u0 - P.WALL_T, bay_u1 + P.WALL_T
+        podium = _box(pu0, P.KEYPAD_PODIUM_V0, pu1, end + P.WALL_T + 0.01,
+                      ROOF_TOP - 0.01, z_top)
+        podium = _cut_all(podium, [
+            _box(pu0 + 1.2, P.KEYPAD_PODIUM_V0 + 1.2, pu1 - 1.2, end + 1,
+                 ROOF_TOP - 0.02, bz4 + 1),
+            _box(bay_u0, bay_v0, bay_u1, bay_v1, z_top - P.KEYPAD_BAY_DEPTH,
+                 z_top + 1),
+        ])
+        solid = solid.fuse(podium)
+        # open the general roof + lip under the podium interior
+        solid = _cut_all(solid, [
+            _box(pu0 + 1.2, P.KEYPAD_PODIUM_V0 + 1.2, pu1 - 1.2, end + 1,
+                 LID_Z0 - 1, ROOF_TOP + 1)])
+        # J3 service + pigtail opening through the bay floor
+        solid = solid.cut(_box(P.KEYPAD_SERVICE_U[0], P.KEYPAD_SERVICE_V[0],
+                               P.KEYPAD_SERVICE_U[1], P.KEYPAD_SERVICE_V[1],
+                               bz4 - 1, z_top + 1))
 
     if variant == "kb_blister" and mode == "full":
         bz = D["kb_blister_z"]                       # interior ceiling 12.7

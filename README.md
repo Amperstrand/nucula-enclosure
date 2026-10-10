@@ -17,7 +17,7 @@ renders are never evidence.
 
 | Item | Status |
 |---|---|
-| Boolean validation | **57 / 57 checks PASS** (`analysis/interference_report.json`) |
+| Boolean validation | **80 / 80 checks PASS** (`analysis/interference_report.json`) |
 | Deterministic rebuild | PASS (hash-identical STL on rebuild) |
 | Physical print feedback | **NOT closed** — print `V0` coupon first |
 | RF / battery measurements | **NOT taken** — `docs/MEASUREMENTS_NEEDED.md` |
@@ -30,6 +30,7 @@ renders are never evidence.
 | **V1** | `V1_bottom_shell` + `V1_lid_closed` | No screen, no keyboard (board broken away). Accessible USB-C + battery service bay |
 | **V2** | `V1_bottom_shell` + `V2_lid_screen_popout` | Same print as V1's bottom; lid with a **pop-out OLED window printed closed** — pop it only if you fit the display glass |
 | **V3** | `V3_bottom_shell_full` + `V3_lid_keyboard_blister` | Keyboard breakaway **NOT removed** (60×110 board). J3 keypad-header service blister with its own pop-out hatch |
+| **V4** | `V4_bottom_shell_terminal` + `V4_lid_terminal` | **Payment terminal**: slim screen zone (landscape OLED window) + flared keypad zone with a bay that seats the Adafruit-1824-class 3×4 matrix keypad (70×50×7) over the breakaway section; J3 service opening in the bay floor |
 
 Renders: `output/renders/OPTIONS_overview.png` (plus per-view PNGs and
 `detail_*.png` close-ups). Renders illustrate; they are not evidence.
@@ -40,12 +41,16 @@ Renders: `output/renders/OPTIONS_overview.png` (plus per-view PNGs and
 2. `V1_bottom_shell.stl` + `V1_lid_closed.stl`
 3. (optional) `V2_lid_screen_popout.stl`
 4. (optional) `V3_bottom_shell_full.stl` + `V3_lid_keyboard_blister.stl`
+5. (optional) `V4_bottom_shell_terminal.stl` + `V4_lid_terminal.stl` —
+   payment-terminal layout: landscape screen on top, keypad bay (seats the
+   Adafruit-1824-class 3x4 matrix keypad, 70x50x7) below over the breakaway
+   section; J3 service opening in the bay floor.
 
 ## Regenerate everything
 
 ```sh
 python3 scripts/extract_kicad_geometry.py   # KiCad -> analysis/*.json
-python3 scripts/validate.py                 # 57 boolean checks -> interference_report.json
+python3 scripts/validate.py                 # 80 boolean checks -> interference_report.json
 python3 scripts/build.py                    # STEP + STL -> output/exports
 python3 scripts/render.py                   # PNG renders -> output/renders
 ```
