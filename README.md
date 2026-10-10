@@ -99,3 +99,9 @@ reference/            ESP32 STEP (from the Nucula repo), three.js for renders
 If you find a mechanical blocker in the *board*, do not "fix" it here —
 record it in `docs/MEASUREMENTS_NEEDED.md`. The PCB is not modified by this
 project.
+## Photoreal hero render
+
+Watch the V4 payment terminal assemble itself and spin:
+**[nucula_hero.mkv](https://github.com/Amperstrand/enclosure-media/blob/main/nucula_hero.mkv)**
+(+ stills) in [`Amperstrand/enclosure-media`](https://github.com/Amperstrand/enclosure-media) —
+headless Blender/Cycles on GPU, built from these validated exports.
