@@ -310,7 +310,7 @@
   "status": "PASS",
   "value": {
    "bottom": 11495.7,
-   "lid": 7418.4
+   "lid": 7356.6
   },
   "intended_contact_mm3": "",
   "note": "watertight B-reps, positive volume",
@@ -650,8 +650,8 @@
  "V4_terminal:solids_valid": {
   "status": "PASS",
   "value": {
-   "bottom": 20167.2,
-   "lid": 9672.6
+   "bottom": 20181.4,
+   "lid": 9041.6
   },
   "intended_contact_mm3": "",
   "note": "watertight B-reps, positive volume",

@@ -123,20 +123,31 @@ SNAP_TABS = [("left", 15.0), ("left", 30.0), ("right", 15.0), ("right", 38.0)]
 # ---------------------------------------------------------------------------
 
 def v4_flare_solids(mode: str, z_top_bottom: float):
-    """Width flare for the keypad zone (payment-terminal shoulder).
+    """Chamfered width flare for the keypad zone (V5 Square-style shoulder).
 
-    Two flat wall bands + floor strips fuse onto the slim shell for
-    v >= V4_FLARE_V0, widening the outer profile by V4_FLARE_PER_SIDE so
-    the 70 mm keypad bay (plus rims) fits over the 60 mm board. Vertical
-    seam faces only - prints with the shell, no overhangs.
+    Side wall bands + floor strips as before; the step becomes a sloped
+    shoulder via a lofted wedge WITH THE CAVITY CUT OUT (a loft between
+    two rects is a solid block - subtract the interior or it runs through
+    the board zone). Print-safe: slope only, no overhangs.
     """
     ox0, oy0, ox1, oy1 = outer_rect(mode)
     f = P.V4_FLARE_PER_SIDE
     v0, v1 = P.V4_FLARE_V0, oy1
+    cx = (ox0 + ox1) / 2.0
     out = []
     for ua, ub in ((ox0 - f, ox0), (ox1, ox1 + f)):
         out.append(_box(ua, v0, ub, v1, -P.FLOOR_T, z_top_bottom))
         out.append(_box(ua, v0, ub, v1, -P.FLOOR_T, 0.0))
+    wedge = (
+        cq.Workplane("XY", origin=(cx, (v0 + v1) / 2.0, P.FLOOR_T))
+        .rect(ox1 - ox0, v1 - v0)
+        .workplane(offset=P.V4_CHAMFER)
+        .rect((ox1 - ox0) + 2 * f, v1 - v0)
+        .loft(combine=True)
+    ).val()
+    wedge = wedge.cut(_box(INT_U0, v0 - 1, INT_U1, v1 + 1,
+                           -1, P.FLOOR_T + P.V4_CHAMFER + 1))
+    out.append(wedge)
     return out
 
 
@@ -385,9 +396,13 @@ def lid(variant: str, mode: str, screen_window: bool, led_window: bool = True,
         # interior clears J3 + pigtail; bay recess seats the 70x50 keypad;
         # J3 service opening doubles as the pigtail drop-through.
         ox0f, oy0f, ox1f, oy1f = outer_rect(mode)
-        solid = solid.fuse(_box(ox0f - P.V4_FLARE_PER_SIDE, P.V4_FLARE_V0,
-                                ox1f + P.V4_FLARE_PER_SIDE, oy1f,
-                                LID_Z0, ROOF_TOP))
+        fl = P.V4_FLARE_PER_SIDE
+        fcx, fcy = (ox0f + ox1f) / 2, (P.V4_FLARE_V0 + oy1f) / 2
+        solid = solid.fuse(
+            (cq.Workplane("XY", origin=(fcx, fcy, LID_Z0))
+             .rect((ox1f - ox0f) + 2 * fl, oy1f - P.V4_FLARE_V0)
+             .extrude(ROOF_TOP - LID_Z0)
+             .edges("|Z").fillet(P.CORNER_R)).val())
         bz4 = BT + P.KB_HEADER_H + 0.5
         z_top = bz4 + P.KEYPAD_BAY_DEPTH + P.KEYPAD_PODIUM_ROOF
         bay_u0 = P.SCREEN_CENTER_U - P.KEYPAD_W / 2.0 - P.KEYPAD_BAY_CLEAR
@@ -395,8 +410,13 @@ def lid(variant: str, mode: str, screen_window: bool, led_window: bool = True,
         bay_v0 = P.KEYPAD_BAY_V0
         bay_v1 = end - 2.0
         pu0, pu1 = bay_u0 - P.WALL_T, bay_u1 + P.WALL_T
-        podium = _box(pu0, P.KEYPAD_PODIUM_V0, pu1, end + P.WALL_T + 0.01,
-                      ROOF_TOP - 0.01, z_top)
+        pcx, pcy = (pu0 + pu1) / 2, (P.KEYPAD_PODIUM_V0 + end + P.WALL_T) / 2
+        pw, pl = pu1 - pu0, (end + P.WALL_T + 0.01) - P.KEYPAD_PODIUM_V0
+        podium = (
+            cq.Workplane("XY", origin=(pcx, pcy, ROOF_TOP - 0.01))
+            .rect(pw, pl).extrude(z_top - ROOF_TOP + 0.01)
+            .edges("|Z").fillet(P.CORNER_R)
+        ).val()
         podium = _cut_all(podium, [
             _box(pu0 + 1.2, P.KEYPAD_PODIUM_V0 + 1.2, pu1 - 1.2, end + 1,
                  ROOF_TOP - 0.02, bz4 + 1),

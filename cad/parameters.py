@@ -255,7 +255,8 @@ KEYPAD_W = 70.0            # manufacturer_doc: Adafruit 1824 datasheet
 KEYPAD_L = 50.0            # manufacturer_doc: length along v (4 key rows)
 KEYPAD_T = 7.0             # manufacturer_doc
 KEYPAD_BAY_CLEAR = 0.6     # enclosure_design_decision: bay slack per side
-KEYPAD_BAY_DEPTH = 3.0     # enclosure_design_decision: locating recess depth
+KEYPAD_BAY_DEPTH = 2.0     # enclosure_design_decision: locating recess depth
+                           # (V5: was 3.0; shallower seat RAISES the pad, keys 5 mm proud)
 KEYPAD_BAY_V0 = 58.8       # enclosure_design_decision: bay top edge; leaves
                            # the 47.4..57.6 band solid between screen deck
                            # and podium (screen / bezel / keypad rhythm)
@@ -268,6 +269,9 @@ V4_FLARE_PER_SIDE = 4.85   # enclosure_design_decision: keypad-zone flare;
 V4_FLARE_V0 = 73.6         # enclosure_design_decision: flare starts at the
                            # routed cut edge band; screen zone keeps the
                            # slim 64.75 profile (payment-terminal shoulder)
+V4_CHAMFER = 4.0          # enclosure_design_decision: V5 45-degree chamfered
+                           # shoulder (Square-terminal cue; slope prints clean,
+                           # vertical-edge corner radii only - no top rounding)
 KEYPAD_SLOT_V = (103.5, 106.5)  # pigtail drop-through into the J3 void
 KEYPAD_SLOT_U = (25.0, 35.0)
 
@@ -293,7 +297,7 @@ SCREEN_FLEX_EDGE_V = 46.0  # enclosure_design_decision: glass +v edge; ribbon
                            # higher" per user 2026-10-09 (payment-terminal
                            # layout: screen top, keypad below).
 SCREEN_CENTER_U = 30.0     # derived_kicad: DS1 pad-row centre (u)
-SCREEN_DECK_BEZEL = 1.30   # enclosure_design_decision: bezel ring around the window
+SCREEN_DECK_BEZEL = 1.10   # enclosure_design_decision: bezel ring around the window
 SCREEN_WINDOW_MARGIN = 1.2  # enclosure_design_decision: bezel around active
 SCREEN_POP_T = 1.00       # enclosure_design_decision: pop-out panel thickness
 SCREEN_BRIDGE_W = 0.60    # enclosure_design_decision: perforation bridge width
