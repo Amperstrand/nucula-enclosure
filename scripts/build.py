@@ -61,6 +61,9 @@ def main():
     parts["V4_lid"] = S.lid("terminal", "full", screen_window=True, led_window=True)
     export("V4_lid_terminal", parts["V4_lid"])
 
+    export("V6_bottom_shell_slab", S.slab_bottom())
+    export("V6_lid_slab", S.slab_lid())
+
     # reference board solids for renders (not for printing)
     for mode, tag in (("main", "main_board"), ("full", "full_board")):
         from cad import reference as R
@@ -77,6 +80,8 @@ def main():
             "V3_lid_keyboard_blister": "variant V3 lid (J3 service blister)",
             "V4_bottom_shell_terminal": "variant V4 bottom (flared keypad zone)",
             "V4_lid_terminal": "variant V4 lid (screen window + keypad bay)",
+            "V6_bottom_shell_slab": "variant V6 slab bottom (uniform walls)",
+            "V6_lid_slab": "variant V6 slab lid (flat flush face)",
             "keypad_standin.stl": "render/validation stand-in (official 1824 outline) - not a part",
             "reference_main_board": "render reference only - do not print",
             "reference_full_board": "render reference only - do not print",

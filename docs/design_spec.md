@@ -120,3 +120,25 @@ membrane 3x4 pads are eliminated by arithmetic (70x77 length overlaps
 the OLED window band), 4x4 pads by pin count (8 lines vs 7). The
 Adafruit-1824-class hard pad (70x51x9.7) is the physical choice.
 
+
+## V6 slab (2026-10-11, uniform-silhouette option)
+
+Research (SumUp Air 84x84x23, Square Terminal design language): POS
+products read as ONE slab - a single top plane, everything flush. The
+V4/V5 flare+podium stacked three silhouettes = the hobbyist tell.
+
+V6 = uniform walls at the keypad-zone width for the full length; ONE
+flat top face at bay_floor + KEYPAD_T (keypad body lands flush, key
+caps proud <=1.6 - the only relief on the face); screen window + pop
+panel flush in the same plane (deck ring deleted); NFC stays legal by
+construction (1.4 membrane across the coil, air beneath - new check
+`nfc_membrane_slab`); J3 service through the well floor; snap tabs
+moved to the slab lip band; ESP32 antenna window + USB + battery slot
+re-cut through the thickened walls (the V6 debug loop: fusing wider
+walls re-closed openings cut into the slim profile - lesson: EVERY
+wall-pierce must be re-asserted after any wall-widening fuse).
+
+V2 positioned as the DRY minimal option; V6 as the polished larger one.
+Debug iterations to green: 3 (antenna/USB re-close 678.8+8.7 mm3; lip
+ring through the well 124 mm3 arithmetic-confirmed; well ring +1.0
+overshoot caught by the zmax artifact probe).

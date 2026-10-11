@@ -66,15 +66,20 @@ def fuse(solids):
 
 
 def run_variant(mode: str, screen_window: bool, variant_name: str,
-                lid_variant: str | None = None, flare: bool = False):
+                lid_variant: str | None = None, flare: bool = False,
+                slab: bool = False):
     print(f"== {variant_name} (mode={mode}, screen={screen_window}) ==")
     board = R.board_solid(mode)
     comps = R.component_solids(mode)
-    bottom = S.bottom_shell(mode, flare=flare)
-    if lid_variant is None:
-        lid_variant = "kb_blister" if mode == "full" else \
-            ("popout" if screen_window else "closed")
-    lid = S.lid(lid_variant, mode, screen_window, led_window=True)
+    if slab:
+        bottom = S.slab_bottom()
+        lid = S.slab_lid()
+    else:
+        bottom = S.bottom_shell(mode, flare=flare)
+        if lid_variant is None:
+            lid_variant = "kb_blister" if mode == "full" else \
+                ("popout" if screen_window else "closed")
+        lid = S.lid(lid_variant, mode, screen_window, led_window=True)
     shell_both = bottom.fuse(lid)
 
     # --- intended contact features -------------------------------------
@@ -248,10 +253,39 @@ def run_variant(mode: str, screen_window: bool, variant_name: str,
                   note="an 8.7 mm keypad header clears the service blister")
 
     # --- 15b keypad bay (V4 terminal) ---------------------------------------
+    if slab:
+        bay_floor_z = (S.BT + P.KB_HEADER_H + 0.5)
+        kp = S.keypad_standin(bay_floor_z)
+        vk = vol(inter(kp, shell_both))
+        bb = kp.BoundingBox()
+        bay_u0 = P.SCREEN_CENTER_U - P.KEYPAD_W / 2 - P.KEYPAD_BAY_CLEAR
+        bay_v1 = S.end_v(mode) - 2.0
+        keys_proud = bb.zmax - (bay_floor_z + P.KEYPAD_T)
+        fits = (bb.xmin >= bay_u0 - 0.01 and
+                bb.xmax <= bay_u0 + P.KEYPAD_W + 2 * P.KEYPAD_BAY_CLEAR + 0.01 and
+                bb.ymax <= bay_v1 + 0.01 and
+                -0.05 <= keys_proud <= 1.6)
+        check(f"{variant_name}:keypad_flush_in_well", vk < 0.5 and fits,
+              {"shell_overlap": round(vk, 3), "face_flush": fits},
+              note="pad face lands on the flat top plane (flush)")
+        svc = S._box(P.KEYPAD_SERVICE_U[0], P.KEYPAD_SERVICE_V[0],
+                     P.KEYPAD_SERVICE_U[1], P.KEYPAD_SERVICE_V[1],
+                     bay_floor_z - 1, bay_floor_z + 1)
+        check(f"{variant_name}:j3_service_opening_clear",
+              vol(inter(svc, lid)) < 0.01, round(vol(inter(svc, lid)), 3),
+              note="well floor opening gives tool access to J3")
+        top = S.slab_dims()[1]
+        core_air = S._box(12.0, 3.0, 49.0, 39.0, S.BT + 0.2, top - 1.6)
+        v_air = vol(inter(core_air, shell_both))
+        check(f"{variant_name}:nfc_membrane_slab", v_air < 0.01,
+              round(v_air, 3),
+              note="air between board and the 1.4 face over the coil core "
+                   "(face thickness itself: nfc_roof_thickness_ok)")
+
     if lid_variant == "terminal":
         bay_floor_z = (S.BT + P.KB_HEADER_H + 0.5
                        + P.KEYPAD_PODIUM_ROOF)
-        kp = S.keypad_standin(bay_floor_z + 0.05)
+        kp = S.keypad_standin(bay_floor_z)
         vk = vol(inter(kp, shell_both))
         bb = kp.BoundingBox()
         bay_u0 = P.SCREEN_CENTER_U - P.KEYPAD_W / 2.0 - P.KEYPAD_BAY_CLEAR
@@ -390,6 +424,7 @@ def main():
     results["V3_full_keyboard"] = run_variant("full", False, "V3_full_keyboard")
     results["V4_terminal"] = run_variant("full", True, "V4_terminal",
                                          lid_variant="terminal", flare=True)
+    results["V6_slab"] = run_variant("full", True, "V6_slab", slab=True)
     results["V0_coupon"] = coupon_checks()
     write_testing_status()
 

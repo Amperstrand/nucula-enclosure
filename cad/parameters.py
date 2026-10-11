@@ -275,6 +275,14 @@ V4_CHAMFER = 4.0          # enclosure_design_decision: V5 45-degree chamfered
 KEYPAD_SLOT_V = (103.5, 106.5)  # pigtail drop-through into the J3 void
 KEYPAD_SLOT_U = (25.0, 35.0)
 
+# --- V6 slab option (uniform Square/SumUp-class silhouette) --------------------
+# One flat top face at the keypad-face plane; no flare, no podium, no
+# deck ring; keypad + screen flush. Derived from existing constraints:
+# bay floor = J3 headroom (12.6), top = floor + KEYPAD_T; NFC membrane
+# 1.4 everywhere (roof over the coil stays legal by construction).
+SLAB_TOP_Z = None        # set in shell: BT + KB_HEADER_H + 0.5 + KEYPAD_T (flush face)
+SLAB_ROOF_T = 1.4        # enclosure_design_decision: NFC-legal membrane
+
 # --- screen option (pop-out window) ------------------------------------------
 # LANDSCAPE glass: long axis along u, so the display reads correctly with
 # the device held keyboard-down (nucula-board device orientation: screen at

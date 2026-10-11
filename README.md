@@ -30,6 +30,8 @@ renders are never evidence.
 | **V1** | `V1_bottom_shell` + `V1_lid_closed` | No screen, no keyboard (board broken away). Accessible USB-C + battery service bay |
 | **V2** | `V1_bottom_shell` + `V2_lid_screen_popout` | Same print as V1's bottom; lid with a **pop-out OLED window printed closed** — pop it only if you fit the display glass |
 | **V3** | `V3_bottom_shell_full` + `V3_lid_keyboard_blister` | Keyboard breakaway **NOT removed** (60×110 board). J3 keypad-header service blister with its own pop-out hatch |
+| **V6 slab** | `V6_bottom_shell_slab` + `V6_lid_slab` | **Uniform slab** (Square/SumUp class, 74.5 × 115.6 × 24.1): ONE flat top face — screen window and keypad well flush in the same plane, keys alone proud ≤1.6; no flare, no podium, no deck ring; NFC membrane 1.4 everywhere |
+| **V2 minimal** | `V1_bottom_shell` + `V2_lid_screen_popout` | the DRY minimal option: slim case, flush pop-out screen, nothing else |
 | **V4** | `V4_bottom_shell_terminal` + `V4_lid_terminal` | **Payment terminal**: slim screen zone (landscape OLED window) + flared keypad zone with a bay that seats the Adafruit-1824-class 3×4 matrix keypad (70×50×7) over the breakaway section; J3 service opening in the bay floor |
 
 Renders: `output/renders/OPTIONS_overview.png` (plus per-view PNGs and

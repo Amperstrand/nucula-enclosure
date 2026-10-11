@@ -488,3 +488,122 @@ def coupon():
     panel = popout_panel(window=(124, 8, 146, 28), z0=1.6, t=P.SCREEN_POP_T, bridges=3)
     body = body.fuse(frame).fuse(panel)
     return body
+
+
+# ---------------------------------------------------------------------------
+# V6 slab variant (uniform Square/SumUp-class silhouette)
+# ---------------------------------------------------------------------------
+
+def slab_dims():
+    """Flat-top slab: one top plane at the keypad-face height.
+
+    bay_floor = J3 headroom ceiling (12.6); top = bay_floor + KEYPAD_T
+    so the pad face lands flush; roof elsewhere is the NFC-legal 1.4
+    membrane. No flare, no podium, no deck ring - walls run straight up
+    at the keypad-zone width for the whole length.
+    """
+    bay_floor = BT + P.KB_HEADER_H + 0.5
+    top = bay_floor + P.KEYPAD_T
+    ox0, oy0, ox1, oy1 = outer_rect("full")
+    f = P.V4_FLARE_PER_SIDE
+    return bay_floor, top, ox0 - f, oy0, ox1 + f, oy1
+
+
+def slab_bottom():
+    """V6 bottom: straight uniform walls to the roof plane, standard
+    board seat/lips/pads/ribs/openings carried over from the full-mode
+    bottom by building it slim then thickening the walls outward."""
+    bay_floor, top, ox0, oy0, ox1, oy1 = slab_dims()
+    base = bottom_shell("full")
+    cx, cy = (ox0 + ox1) / 2, (oy0 + oy1) / 2
+    walls = (
+        cq.Workplane("XY", origin=(cx, cy, -P.FLOOR_T))
+        .rect(ox1 - ox0, oy1 - oy0).extrude(top - LID_Z0 + P.FLOOR_T + 0.01)
+        .edges("|Z").fillet(P.CORNER_R)
+    ).val()
+    cavity = _box(INT_U0 - 0.05, INT_V0 - 0.05, INT_U1 + 0.05,
+                  end_v("full") + 0.05, -P.FLOOR_T - 0.01, top)
+    walls = walls.cut(cavity)
+    solid = base.fuse(walls)
+    # re-cut through the thickened walls what the slim-wall cutters opened:
+    # ESP32 antenna window + USB opening + battery service slot
+    solid = solid.cut(_box(60.20, 47.00, ox1 + 1.0, 65.30,
+                           P.PCB_SUPPORT_H, top))
+    ov0, ov1 = D["usb_open_v"]
+    oz0, oz1 = D["usb_open_z"]
+    solid = solid.cut(_box(ox0 - 1, ov0, INT_U0 + 0.6, ov1, oz0, oz1))
+    sv0, sv1 = D["bat_slot_v"]
+    sz0, sz1 = D["bat_slot_z"]
+    solid = solid.cut(_box(ox0 - 1, sv0, -0.05, sv1, sz0, sz1))
+    # snap tabs at the SLAB lip band (the full-mode tabs sit lower and
+    # stay as inert wall stubs inside the taller cavity)
+    lip_top = top - P.SLAB_ROOF_T
+    for side, v in SNAP_TABS:
+        u0, u1 = (INT_U0, INT_U0 + 0.60) if side == "left" else \
+                 (INT_U1 - 0.60, INT_U1)
+        solid = solid.fuse(_box(u0, v - 3.0, u1, v + 3.0,
+                                lip_top - P.LID_LIP_ENGAGE, lip_top - 0.2))
+    return solid
+
+
+def slab_lid():
+    """V6 lid: flat NFC-membrane roof + lip; screen window and keypad
+    well through the same plane (flush face); J3 service in the well."""
+    bay_floor, top, ox0, oy0, ox1, oy1 = slab_dims()
+    cx, cy = (ox0 + ox1) / 2, (oy0 + oy1) / 2
+    roof = (
+        cq.Workplane("XY", origin=(cx, cy, top - P.SLAB_ROOF_T))
+        .rect(ox1 - ox0, oy1 - oy0).extrude(P.SLAB_ROOF_T)
+        .edges("|Z").fillet(P.CORNER_R)
+    ).val()
+    lip = _box(INT_U0 + P.LID_SHEAR_PLAY, INT_V0 + P.LID_SHEAR_PLAY,
+               INT_U1 - P.LID_SHEAR_PLAY, end_v("full") - P.LID_SHEAR_PLAY,
+               top - P.SLAB_ROOF_T - P.LID_LIP_ENGAGE, top - P.SLAB_ROOF_T)
+    lip = _cut_all(lip, [
+        _box(INT_U0 + 1.4, INT_V0 + 1.4, INT_U1 - 1.4,
+             end_v("full") - 1.4, top - P.SLAB_ROOF_T - P.LID_LIP_ENGAGE - 1,
+             top + 1),
+        _box(16.0, end_v("full") - P.LID_LIP_ENGAGE - 0.2, 44.0,
+             end_v("full") + 1, top - P.SLAB_ROOF_T - P.LID_LIP_ENGAGE - 1,
+             top + 1),
+    ])
+    # the well walls replace the lip across the keypad zone
+    bay_u0w = P.SCREEN_CENTER_U - P.KEYPAD_W / 2 - P.KEYPAD_BAY_CLEAR
+    bay_u1w = P.SCREEN_CENTER_U + P.KEYPAD_W / 2 + P.KEYPAD_BAY_CLEAR
+    bay_v1w = end_v("full") - 2.0
+    lip = _cut_all(lip, [
+        _box(bay_u0w - P.WALL_T - 0.1, P.KEYPAD_PODIUM_V0 - 0.1,
+             bay_u1w + P.WALL_T + 0.1, bay_v1w + P.WALL_T + 0.1,
+             top - P.SLAB_ROOF_T - P.LID_LIP_ENGAGE - 1, top + 1)])
+    solid = roof.fuse(lip)
+
+    # keypad well through the flat face (walls drop to the bay floor)
+    bay_u0 = P.SCREEN_CENTER_U - P.KEYPAD_W / 2 - P.KEYPAD_BAY_CLEAR
+    bay_u1 = P.SCREEN_CENTER_U + P.KEYPAD_W / 2 + P.KEYPAD_BAY_CLEAR
+    bay_v1 = end_v("full") - 2.0
+    well_walls = _box(bay_u0 - P.WALL_T, P.KEYPAD_PODIUM_V0,
+                      bay_u1 + P.WALL_T, bay_v1 + P.WALL_T,
+                      bay_floor, top)
+    well_walls = _cut_all(well_walls, [
+        _box(bay_u0, P.KEYPAD_PODIUM_V0, bay_u1, bay_v1, bay_floor - 1, top + 2)])
+    solid = solid.fuse(well_walls)
+    # open the roof + lip under the well interior and the screen window
+    win, _glass = screen_window_rect()
+    wu0, wv0, wu1, wv1 = win
+    solid = _cut_all(solid, [
+        _box(bay_u0, P.KEYPAD_PODIUM_V0, bay_u1, bay_v1, top - 2, top + 2),
+        _box(wu0, wv0, wu1, wv1, top - 2, top + 2),
+        _box(P.KEYPAD_SERVICE_U[0], P.KEYPAD_SERVICE_V[0],
+             P.KEYPAD_SERVICE_U[1], P.KEYPAD_SERVICE_V[1],
+             bay_floor - 1, top + 1),
+    ])
+    if True:
+        panel = popout_panel(window=win, z0=top - P.SCREEN_POP_T,
+                             t=P.SCREEN_POP_T)
+        solid = solid.fuse(panel)
+        for cx2, cy2 in (Measured.SW1_C, Measured.SW2_C):
+            solid = solid.cut(_cyl(cx2, cy2, P.BUTTON_HOLE_D / 2.0,
+                                    top - 2, top + 2))
+        solid = solid.cut(_cyl(Measured.D3_C[0], Measured.D3_C[1],
+                               P.LED_HOLE_D / 2.0, top - 2, top + 2))
+    return solid
