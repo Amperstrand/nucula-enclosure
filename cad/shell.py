@@ -136,7 +136,8 @@ def v4_flare_solids(mode: str, z_top_bottom: float):
     cx = (ox0 + ox1) / 2.0
     out = []
     for ua, ub in ((ox0 - f, ox0), (ox1, ox1 + f)):
-        out.append(_box(ua, v0, ub, v1, -P.FLOOR_T, z_top_bottom))
+        out.append(_box(ua, v0, ub, v1, P.FLOOR_T + P.V4_CHAMFER,
+                        z_top_bottom))
         out.append(_box(ua, v0, ub, v1, -P.FLOOR_T, 0.0))
     wedge = (
         cq.Workplane("XY", origin=(cx, (v0 + v1) / 2.0, P.FLOOR_T))
