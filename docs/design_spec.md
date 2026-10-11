@@ -100,3 +100,23 @@ stand-in` (official-outline solid seats without wall contact) +
 - OLED glass outline/flex are conservative assumptions pending measurement.
 - NFC range is the hardware repo's own open item; the enclosure adds a
   measured-later reading path (≤1.6 mm PETG everywhere over the coil).
+## V5 product polish (2026-10-11)
+
+User directive: Square-Termial-class polish; sharp-ish corners
+preferred over print-hostile rounding. Changes (all 80/80 re-validated):
+
+* Keypad RAISED: bay depth 3.0 -> 2.0; keys stand 5 mm proud of the
+  podium face.
+* Chamfered shoulder: the keypad-zone width flare steps through a
+  sloped loft (V4_CHAMFER = 4 mm) instead of a hard vertical step —
+  the print-safe way to make a step look like a product shoulder.
+* Podium + flare corners: vertical-edge fillets only (CORNER_R in the
+  extrude); no top-edge rounding anywhere (printing stays polished).
+* Screen bezel 1.30 -> 1.10.
+
+Keypad-class re-confirmation (2026-10-11): nucula-board docs pin the
+ELECTRICAL contract (Adafruit-3845 interleaved order, J3 center-seven);
+membrane 3x4 pads are eliminated by arithmetic (70x77 length overlaps
+the OLED window band), 4x4 pads by pin count (8 lines vs 7). The
+Adafruit-1824-class hard pad (70x51x9.7) is the physical choice.
+
