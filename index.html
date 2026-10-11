@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nucula Enclosure Configurator</title>
+<style>
+  body { margin: 0; background: #101418; color: #cfd8dc;
+         font-family: system-ui, sans-serif; overflow: hidden; }
+  #panel { position: fixed; top: 16px; left: 16px; z-index: 10;
+           background: rgba(16,20,24,.88); padding: 14px 18px;
+           border-radius: 10px; border: 1px solid #2a323a;
+           max-width: 300px; }
+  #panel h1 { font-size: 15px; margin: 0 0 10px; }
+  label { display: block; font-size: 12px; margin: 8px 0 3px;
+          color: #9fb0ba; }
+  select, input[type=checkbox] { accent-color: #58a6d8; }
+  select { width: 100%; padding: 5px; background: #1a2129;
+           color: #cfd8dc; border: 1px solid #2a323a; border-radius: 5px; }
+  .row { display: flex; gap: 14px; align-items: center; font-size: 13px; }
+  #hint { margin-top: 10px; font-size: 11px; color: #6f8090; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<div id="panel">
+  <h1>Nucula Enclosure Configurator</h1>
+  <label>Configuration</label>
+  <select id="cfg"></select>
+  <div class="row" style="margin-top:10px">
+    <input type="checkbox" id="pcb"> <label for="pcb" style="margin:0">Show PCB</label>
+  </div>
+  <div class="row">
+    <input type="checkbox" id="lid" checked> <label for="lid" style="margin:0">Show lid</label>
+  </div>
+  <div class="row">
+    <input type="checkbox" id="keypad"> <label for="keypad" style="margin:0">Show keypad (well cfgs)</label>
+  </div>
+  <div id="hint">drag = orbit · wheel = zoom</div>
+</div>
+<script src="lib/three.min.js"></script>
+<script src="lib/STLLoader.js"></script>
+<script>
+const CONFIGS = [
+  ["Minimal · dry (no screen)",            "cfg_main-slim-noscr"],
+  ["Minimal · pop-out screen",             "cfg_main-slim-scr"],
+  ["Minimal · screen popped",              "cfg_main-slim-scr-open"],
+  ["Full board · J3 service blister",      "cfg_full-slim-noscr"],
+  ["Terminal · slim + keypad bay",         "cfg_full-slim-scr-kpbay"],
+  ["Slab · keypad well (flush)",           "cfg_full-slab-scr-kpwell"],
+  ["Slab · flat top, no keypad",           "cfg_full-slab-scr-noscr"],
+  ["Slab · keypad well, no battery",       "cfg_full-slab-scr-kpwell-nobat"],
+];
+const sel = document.getElementById("cfg");
+CONFIGS.forEach(([label, tag], i) => {
+  const o = document.createElement("option");
+  o.value = tag; o.textContent = label; sel.appendChild(o);
+});
+sel.selectedIndex = 5;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x101418);
+const renderer = new THREE.WebGLRenderer({antialias: true});
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(devicePixelRatio);
+document.body.appendChild(renderer.domElement);
+
+scene.add(new THREE.DirectionalLight(0xffffff, 0.95)
+  .translateX(90).translateY(-130).translateZ(170));
+scene.add(new THREE.DirectionalLight(0xbfd4dd, 0.45)
+  .translateX(-120).translateY(-40).translateZ(60));
+scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+
+const camera = new THREE.PerspectiveCamera(34, innerWidth/innerHeight, 1, 4000);
+const controls = (typeof THREE.OrbitControls !== "undefined")
+  ? new THREE.OrbitControls(camera, renderer.domElement)
+  : makeOrbit(camera);
+
+function makeOrbit(cam) {
+  // minimal fallback orbit (three.min.js r1xx bundles OrbitControls)
+  const st = {az: 0.6, el: 0.35, r: 230, drag: false, px: 0, py: 0};
+  const el = renderer.domElement;
+  el.addEventListener("mousedown", e => { st.drag = true; st.px = e.clientX; st.py = e.clientY; });
+  addEventListener("mouseup", () => st.drag = false);
+  addEventListener("mousemove", e => {
+    if (!st.drag) return;
+    st.az -= (e.clientX - st.px) * 0.006;
+    st.el = Math.max(0.05, Math.min(1.4, st.el + (e.clientY - st.py) * 0.006));
+    st.px = e.clientX; st.py = e.clientY;
+  });
+  el.addEventListener("wheel", e => { st.r *= 1 + Math.sign(e.deltaY) * 0.08; }, {passive: true});
+  cam.st = st;
+  return {update() {
+    cam.position.set(60 + st.r * Math.cos(st.el) * Math.sin(st.az),
+                     30 - st.r * Math.cos(st.el) * Math.cos(st.az),
+                     st.r * Math.sin(st.el));
+    cam.lookAt(60, 30, 6);
+  }};
+}
+
+const parts = {};
+function load(name, file, color, show) {
+  if (parts[name]) { parts[name].visible = show; return; }
+  new THREE.STLLoader().load("models/" + file, geo => {
+    const m = new THREE.Mesh(geo,
+      new THREE.MeshPhongMaterial({color, shininess: 40}));
+    m.visible = show;
+    scene.add(m);
+    parts[name] = m;
+  });
+}
+
+function refresh() {
+  const tag = sel.value;
+  load("bottom", tag + "__bottom.stl", 0x2f3a45, true);
+  load("lid",    tag + "__lid.stl",    0x3c4a57,
+       document.getElementById("lid").checked);
+  load("pcb",    "reference_full_board.stl", 0x1a6e8a,
+       document.getElementById("pcb").checked);
+  load("keypad", "keypad_standin.stl", 0x23282d,
+       document.getElementById("keypad").checked && sel.value.includes("kpwell"));
+}
+sel.onchange = refresh;
+["pcb", "lid", "keypad"].forEach(id =>
+  document.getElementById(id).onchange = refresh);
+refresh();
+
+(function tick() {
+  controls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+})();
+addEventListener("resize", () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>
