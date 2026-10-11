@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import cadquery as cq
 
+from cad import config as CFG
 from cad import shell as S
 
 OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "output", "exports")
@@ -36,7 +37,44 @@ def export(name: str, solid, units_note: str = "mm"):
           f"bbox {bb.xlen:.1f} x {bb.ylen:.1f} x {bb.zlen:.1f}")
 
 
+MATRIX = [
+    {"board": "main", "screen": "none", "keypad": "none",
+     "battery": True, "usb": True, "profile": "slim"},      # minimal dry
+    {"board": "main", "screen": "popout", "keypad": "none",
+     "profile": "slim"},                                    # minimal screen
+    {"board": "main", "screen": "open", "keypad": "none",
+     "profile": "slim"},                                    # popped panel
+    {"board": "full", "screen": "none", "keypad": "none",
+     "profile": "slim"},                                   # service blister
+    {"board": "full", "screen": "popout", "keypad": "bay",
+     "profile": "slim"},                                   # V5 terminal
+    {"board": "full", "screen": "popout", "keypad": "well",
+     "profile": "slab"},                                   # V6 slab
+    {"board": "full", "screen": "popout", "keypad": "none",
+     "profile": "slab"},                                   # slab flat
+    {"board": "full", "screen": "popout", "keypad": "well",
+     "battery": False, "profile": "slab"},                 # slab no battery
+]
+
+
 def main():
+    import json as _json
+    if len(sys.argv) > 2 and sys.argv[1] == "--config":
+        cfg = _json.loads(sys.argv[2])
+        bottom, lid = CFG.build_config(cfg)
+        tag = CFG.name(cfg).replace("/", "_")
+        os.makedirs(OUT, exist_ok=True)
+        export(f"cfg_{tag}__bottom", bottom)
+        export(f"cfg_{tag}__lid", lid)
+        return
+    if "--matrix" in sys.argv:
+        os.makedirs(OUT, exist_ok=True)
+        for cfg in MATRIX:
+            bottom, lid = CFG.build_config(cfg)
+            tag = CFG.name(cfg).replace("/", "_")
+            export(f"cfg_{tag}__bottom", bottom)
+            export(f"cfg_{tag}__lid", lid)
+        return
     os.makedirs(OUT, exist_ok=True)
     parts = {}
 

@@ -151,7 +151,8 @@ def v4_flare_solids(mode: str, z_top_bottom: float):
     return out
 
 
-def bottom_shell(mode: str, flare: bool = False):
+def bottom_shell(mode: str, flare: bool = False,
+                 battery: bool = True, usb: bool = True):
     end = end_v(mode)
     ox0, oy0, ox1, oy1 = outer_rect(mode)
     cx, cy = (ox0 + ox1) / 2.0, (oy0 + oy1) / 2.0
@@ -165,17 +166,20 @@ def bottom_shell(mode: str, flare: bool = False):
     cavity = _box(INT_U0, INT_V0, INT_U1, end, -P.FLOOR_T - 0.01, LID_Z0 + 5)
     solid = walls.cut(cavity)
 
-    # floor slab minus battery pocket
+    # floor slab minus battery pocket (feature-gated)
     floor = _box(INT_U0, INT_V0, INT_U1, end, -P.FLOOR_T, 0.0)
     pu0, pu1 = D["pocket_u"]
     pv0, pv1 = D["pocket_v"]
-    floor = floor.cut(_box(pu0, pv0, pu1, pv1, D["pocket_z_bot"] - 0.5, 0.5))
+    if battery:
+        floor = floor.cut(_box(pu0, pv0, pu1, pv1,
+                               D["pocket_z_bot"] - 0.5, 0.5))
     solid = solid.fuse(floor)
 
     # battery bump under the pocket (2 mm skirt)
-    bump = _box(pu0 - 2.0, pv0 - 2.0, pu1 + 2.0, pv1 + 2.0,
-                D["case_z_min"], D["pocket_z_bot"] + 0.01)
-    solid = solid.fuse(bump)
+    if battery:
+        bump = _box(pu0 - 2.0, pv0 - 2.0, pu1 + 2.0, pv1 + 2.0,
+                    D["case_z_min"], D["pocket_z_bot"] + 0.01)
+        solid = solid.fuse(bump)
 
     # under-board corner support pads (bare-laminate voids)
     pads = []
@@ -230,15 +234,18 @@ def bottom_shell(mode: str, flare: bool = False):
     # snap tabs
     solid = solid.fuse(_fuse_all([snap_tab_solid(s, v) for s, v in SNAP_TABS]))
 
-    # openings
+    # openings (feature-gated)
     cutters = []
-    ov0, ov1 = D["usb_open_v"]
-    oz0, oz1 = D["usb_open_z"]
-    cutters.append(_box(ox0 - 1, ov0, INT_U0 + 0.6, ov1, oz0, oz1))
-    cutters.append(_box(ox0 - 1, ov0 - 0.5, INT_U0 - 0.3, ov1 + 0.5, oz0 - 0.5, oz1 + 0.5))
-    sv0, sv1 = D["bat_slot_v"]
-    sz0, sz1 = D["bat_slot_z"]
-    cutters.append(_box(ox0 - 1, sv0, -0.05, sv1, sz0, sz1))
+    if usb:
+        ov0, ov1 = D["usb_open_v"]
+        oz0, oz1 = D["usb_open_z"]
+        cutters.append(_box(ox0 - 1, ov0, INT_U0 + 0.6, ov1, oz0, oz1))
+        cutters.append(_box(ox0 - 1, ov0 - 0.5, INT_U0 - 0.3, ov1 + 0.5,
+                            oz0 - 0.5, oz1 + 0.5))
+    if battery:
+        sv0, sv1 = D["bat_slot_v"]
+        sz0, sz1 = D["bat_slot_z"]
+        cutters.append(_box(ox0 - 1, sv0, -0.05, sv1, sz0, sz1))
     # ESP32 antenna window: open slot in the right wall so the module
     # overhang clears and the antenna radiates through air, not plastic
     cutters.append(_box(60.20, 47.00, INT_U1 + P.WALL_T + 0.05, 65.30,
@@ -509,12 +516,12 @@ def slab_dims():
     return bay_floor, top, ox0 - f, oy0, ox1 + f, oy1
 
 
-def slab_bottom():
+def slab_bottom(battery: bool = True, usb: bool = True):
     """V6 bottom: straight uniform walls to the roof plane, standard
     board seat/lips/pads/ribs/openings carried over from the full-mode
     bottom by building it slim then thickening the walls outward."""
     bay_floor, top, ox0, oy0, ox1, oy1 = slab_dims()
-    base = bottom_shell("full")
+    base = bottom_shell("full", battery=battery, usb=usb)
     cx, cy = (ox0 + ox1) / 2, (oy0 + oy1) / 2
     walls = (
         cq.Workplane("XY", origin=(cx, cy, -P.FLOOR_T))
@@ -529,12 +536,14 @@ def slab_bottom():
     # ESP32 antenna window + USB opening + battery service slot
     solid = solid.cut(_box(60.20, 47.00, ox1 + 1.0, 65.30,
                            P.PCB_SUPPORT_H, top))
-    ov0, ov1 = D["usb_open_v"]
-    oz0, oz1 = D["usb_open_z"]
-    solid = solid.cut(_box(ox0 - 1, ov0, INT_U0 + 0.6, ov1, oz0, oz1))
-    sv0, sv1 = D["bat_slot_v"]
-    sz0, sz1 = D["bat_slot_z"]
-    solid = solid.cut(_box(ox0 - 1, sv0, -0.05, sv1, sz0, sz1))
+    if usb:
+        ov0, ov1 = D["usb_open_v"]
+        oz0, oz1 = D["usb_open_z"]
+        solid = solid.cut(_box(ox0 - 1, ov0, INT_U0 + 0.6, ov1, oz0, oz1))
+    if battery:
+        sv0, sv1 = D["bat_slot_v"]
+        sz0, sz1 = D["bat_slot_z"]
+        solid = solid.cut(_box(ox0 - 1, sv0, -0.05, sv1, sz0, sz1))
     # snap tabs at the SLAB lip band (the full-mode tabs sit lower and
     # stay as inert wall stubs inside the taller cavity)
     lip_top = top - P.SLAB_ROOF_T
@@ -546,7 +555,8 @@ def slab_bottom():
     return solid
 
 
-def slab_lid():
+def slab_lid(screen: str = "popout", keypad: str = "well",
+             battery: bool = True, popped: bool = False):
     """V6 lid: flat NFC-membrane roof + lip; screen window and keypad
     well through the same plane (flush face); J3 service in the well."""
     bay_floor, top, ox0, oy0, ox1, oy1 = slab_dims()
@@ -581,23 +591,30 @@ def slab_lid():
     bay_u0 = P.SCREEN_CENTER_U - P.KEYPAD_W / 2 - P.KEYPAD_BAY_CLEAR
     bay_u1 = P.SCREEN_CENTER_U + P.KEYPAD_W / 2 + P.KEYPAD_BAY_CLEAR
     bay_v1 = end_v("full") - 2.0
-    well_walls = _box(bay_u0 - P.WALL_T, P.KEYPAD_PODIUM_V0,
-                      bay_u1 + P.WALL_T, bay_v1 + P.WALL_T,
-                      bay_floor, top)
-    well_walls = _cut_all(well_walls, [
-        _box(bay_u0, P.KEYPAD_PODIUM_V0, bay_u1, bay_v1, bay_floor - 1, top + 2)])
-    solid = solid.fuse(well_walls)
+    well_walls = (_box(bay_u0 - P.WALL_T, P.KEYPAD_PODIUM_V0,
+                       bay_u1 + P.WALL_T, bay_v1 + P.WALL_T,
+                       bay_floor, top) if keypad == "well" else None)
+    if well_walls is not None:
+        well_walls = _cut_all(well_walls, [
+            _box(bay_u0, P.KEYPAD_PODIUM_V0, bay_u1, bay_v1,
+                 bay_floor - 1, top + 2)])
+    if well_walls is not None:
+        solid = solid.fuse(well_walls)
     # open the roof + lip under the well interior and the screen window
     win, _glass = screen_window_rect()
     wu0, wv0, wu1, wv1 = win
-    solid = _cut_all(solid, [
-        _box(bay_u0, P.KEYPAD_PODIUM_V0, bay_u1, bay_v1, top - 2, top + 2),
-        _box(wu0, wv0, wu1, wv1, top - 2, top + 2),
-        _box(P.KEYPAD_SERVICE_U[0], P.KEYPAD_SERVICE_V[0],
-             P.KEYPAD_SERVICE_U[1], P.KEYPAD_SERVICE_V[1],
-             bay_floor - 1, top + 1),
-    ])
-    if True:
+    cuts = []
+    if keypad == "well":
+        cuts += [
+            _box(bay_u0, P.KEYPAD_PODIUM_V0, bay_u1, bay_v1, top - 2, top + 2),
+            _box(P.KEYPAD_SERVICE_U[0], P.KEYPAD_SERVICE_V[0],
+                 P.KEYPAD_SERVICE_U[1], P.KEYPAD_SERVICE_V[1],
+                 bay_floor - 1, top + 1),
+        ]
+    if screen != "none":
+        cuts.append(_box(wu0, wv0, wu1, wv1, top - 2, top + 2))
+    solid = _cut_all(solid, cuts)
+    if screen == "popout" and not popped:
         panel = popout_panel(window=win, z0=top - P.SCREEN_POP_T,
                              t=P.SCREEN_POP_T)
         solid = solid.fuse(panel)

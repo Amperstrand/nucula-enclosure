@@ -48,6 +48,20 @@ Renders: `output/renders/OPTIONS_overview.png` (plus per-view PNGs and
    Adafruit-1824-class 3x4 matrix keypad, 70x50x7) below over the breakaway
    section; J3 service opening in the bay floor.
 
+## Configurator (in-browser)
+
+**https://amperstrand.github.io/nucula-enclosure/** — pick any of the 8
+prebuilt configurations (minimal dry / screen / popped, service blister,
+terminal bay, slab well, slab flat, slab no-battery), toggle **Show PCB**
+/ lid / keypad, orbit in 3D. STLs are the actual validated exports.
+
+## Modular configs
+
+`scripts/build.py --config '{"board":"full","screen":"popout","keypad":"well","battery":false,"usb":true,"profile":"slab"}'`
+builds ANY valid combination; `--matrix` rebuilds the 8 prebuilt ones.
+Constraints are enforced (`cad/config.py`): keypad needs the full board;
+bay is slim-profile, well is slab-profile.
+
 ## Regenerate everything
 
 ```sh
